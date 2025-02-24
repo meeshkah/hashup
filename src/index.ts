@@ -20,12 +20,12 @@ export async function generate(options: CliOptions) {
   const assetFiles = await glob(
     `${assetsDir}/${extensionPattern}/**/*.${extensionPattern}`,
   )
-  const outputDir = `${assetsDir}/${extensionPattern}-hashed`;
+  const outputDir = `${assetsDir}/${extensionPattern}-hashed`
 
   let hashedFiles = 0
   const manifest = Object.create(null)
 
-  await rmdir(outputDir, { recursive: true, force: true })
+  await rmdir(outputDir)
 
   for (const path of assetFiles) {
     const parsedPath = parse(path)
