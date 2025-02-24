@@ -1,4 +1,4 @@
-import { rename, writeFile } from 'node:fs/promises'
+import { cp, rmdir, writeFile } from 'node:fs/promises'
 import { format, join, parse, relative } from 'node:path'
 import process from 'node:process'
 import { consola } from 'consola'
@@ -20,9 +20,12 @@ export async function generate(options: CliOptions) {
   const assetFiles = await glob(
     `${assetsDir}/${extensionPattern}/**/*.${extensionPattern}`,
   )
+  const outputDir = `${assetsDir}/${extensionPattern}-hashed`;
 
   let hashedFiles = 0
   const manifest = Object.create(null)
+
+  await rmdir(outputDir, { recursive: true, force: true })
 
   for (const path of assetFiles) {
     const parsedPath = parse(path)
@@ -43,10 +46,11 @@ export async function generate(options: CliOptions) {
     const newFilePath = format({
       ...parsedPath,
       base: undefined,
+      dir: outputDir,
       ext: `.${hash}${parsedPath.ext}`,
     })
 
-    await rename(path, newFilePath)
+    await cp(path, newFilePath)
 
     manifest[key] = relativeToAssetsDir(newFilePath)
     hashedFiles++

@@ -8,6 +8,9 @@
 1. Rename or rather hash (hence the name) the assets.
 2. Generate a `manifest.json` for them.
 
+DIFFERENCES FROM THE ORIGINAL HASHUP:
+The hashed files are copied to the standalone folder instead of being renamed. The folder is cleared on every run.
+
 ## Installation
 
 If you want to use hashup right away, there is no need to install it. Simply call it with `npx`:
