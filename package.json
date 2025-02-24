@@ -45,7 +45,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test:types": "tsc --noEmit",
-    "release": "bumpp"
+    "release": "bumpp",
+    "prepare": "npm i && npm run build"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.7.3",
