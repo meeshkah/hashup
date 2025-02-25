@@ -13,10 +13,14 @@ async function main() {
     .option('--ext <extension>', 'Specify file extensions', {
       default: ['css', 'js'],
     })
+    .option('--suffix <suffix>', 'Specify output folder suffix', {
+      default: 'hashed',
+    })
     .action(async (path: string, flags) => {
       await build({
         assetsDir: resolve(process.cwd(), path || 'assets'),
         extensions: Array.isArray(flags.ext) ? flags.ext : [flags.ext],
+        suffix: flags.suffix || 'hashed',
       })
     })
 
