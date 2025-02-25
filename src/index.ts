@@ -1,4 +1,4 @@
-import { cp, rmdir, writeFile } from 'node:fs/promises'
+import { cp, rm, writeFile } from 'node:fs/promises'
 import { format, join, parse, relative } from 'node:path'
 import process from 'node:process'
 import { consola } from 'consola'
@@ -12,24 +12,36 @@ export const RE_HASHED_FILENAME = /([.-])(\w{8})\.(\w+)$/
 export interface CliOptions {
   assetsDir: string
   extensions: Array<string>
+  suffix: string
 }
 
 export async function generate(options: CliOptions) {
-  const { assetsDir, extensions } = options
+  const { assetsDir, extensions, suffix } = options
   const extensionPattern = `{${extensions.join(',')}}`
   const assetFiles = await glob(
     `${assetsDir}/${extensionPattern}/**/*.${extensionPattern}`,
   )
-  const outputDir = `${assetsDir}/${extensionPattern}-hashed`
 
   let hashedFiles = 0
   const manifest = Object.create(null)
 
-  await rmdir(outputDir)
+  for (const ext of extensions) {
+    const dirPath = `${assetsDir}/${ext}-${suffix}`
+    try {
+      await rm(dirPath, { recursive: true })
+      consola.info(`Deleted: ${cyan(dirPath)}`)
+    }
+    catch {
+      consola.info(`Skipping: ${cyan(dirPath)} - does not exist`)
+    }
+  }
 
   for (const path of assetFiles) {
     const parsedPath = parse(path)
     const key = relativeToAssetsDir(path)
+
+    const extension = extensions.find(ext => parsedPath.dir.includes(`/${ext}`))
+    const hashDir = extension ? parsedPath.dir.replace(`/${extension}`, `/${extension}-${suffix}`) : parsedPath.dir
 
     // Make sure file hasn't been hashed already
     if (RE_HASHED_FILENAME.test(parsedPath.base)) {
@@ -46,7 +58,7 @@ export async function generate(options: CliOptions) {
     const newFilePath = format({
       ...parsedPath,
       base: undefined,
-      dir: outputDir,
+      dir: hashDir,
       ext: `.${hash}${parsedPath.ext}`,
     })
 
